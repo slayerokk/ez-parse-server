@@ -1,0 +1,38 @@
+{
+	"root": true,
+	"env": {
+		"node": true,
+		"es6": true
+	},
+	"extends": "eslint:recommended",
+	"parserOptions": {
+		"sourceType": "module",
+		"ecmaVersion": 2020
+	},
+	"rules": {
+		"indent": [
+			"warn",
+			"tab"
+		],
+		"quotes": [
+			"warn",
+			"single"
+		],
+		"semi": [
+			"error",
+			"never"
+		],
+		"no-var": [
+			"error"
+		],
+		"no-console": [
+			"off"
+		],
+		"no-unused-vars": [
+			"warn"
+		],
+		"require-await": [
+			"warn"
+		]
+	}
+}

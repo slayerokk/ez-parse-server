@@ -1,0 +1,40 @@
+version: "3.2"
+
+services:
+
+  ezserver:
+    container_name: ezserver_api
+    image: docker.rassvet-nf.ru/ezserver
+    environment:
+      SERVICEDIR: src/services
+      CACHER: redis://ezserver_redis
+      LOGGER: "true"
+      LOGLEVEL: info
+      TRANSPORTER: nats://ezserver_nats:4222
+      DB_CONNECTION: mariadb://ezserver.codehandler.ru:R1m3U1r0D5f5O6c80F5g1P9f@37.143.9.170:3306/ezserver.codehandler.ru
+    depends_on:
+      - ezserver_nats
+      - ezserver_redis
+    networks:
+      - internal
+      - default
+    ports:
+      - 127.0.0.1:44235:44235
+    restart: always
+
+  ezserver_nats:
+    image: nats
+    container_name: ezserver_nats
+    networks:
+      - internal
+    restart: always
+
+  ezserver_redis:
+    image: redis:alpine
+    container_name: ezserver_redis
+    networks:
+      - internal
+    restart: always
+
+networks:
+  internal:

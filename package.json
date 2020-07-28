@@ -1,0 +1,53 @@
+{
+  "name": "ez-parse-server",
+  "version": "1.0.0",
+  "description": "Parse server for ezwow by slayerokk@gmail.com",
+  "main": "index.js",
+  "scripts": {
+    "server:dev": "babel-node ./node_modules/moleculer/bin/moleculer-runner.js -E ./development.env --hot",
+    "server:lint": "eslint --fix --ext=.js src",
+    "server:transpile": "npm run server:lint && babel src -d .server",
+    "docker:build": "npm run server:transpile && docker build -t docker.rassvet-nf.ru/ezserver .",
+    "docker:push": "docker push docker.rassvet-nf.ru/ezserver",
+    "docker:pull": "docker-compose pull",
+    "docker:up": "docker-compose up -d && npm run docker:prune",
+    "docker:prune": "docker system prune -f",
+    "docker:deploy": "npm run docker:build && npm run docker:push && npm run docker:up",
+    "docker:remote:pull": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru:22 docker-compose pull",
+    "docker:remote:up": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru:22 docker-compose up -d && npm run docker:remote:prune",
+    "docker:remote:prune": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru:22 docker system prune -f",
+    "docker:remote:deploy": "npm run docker:build && npm run docker:push && npm run docker:remote:pull && npm run docker:remote:up"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slayerokk/ez-parse-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slayerokk/ez-parse-server/issues"
+  },
+  "homepage": "https://github.com/slayerokk/ez-parse-server#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
+    "dotenv": "^8.2.0",
+    "ioredis": "^4.17.3",
+    "lodash": "^4.17.19",
+    "mariadb": "^2.4.2",
+    "moleculer": "^0.14.8",
+    "moleculer-bull": "^0.2.8",
+    "moleculer-web": "^0.9.1",
+    "nats": "^1.4.9",
+    "node-cron": "^2.0.3",
+    "redlock": "^4.1.0",
+    "sequelize": "^6.3.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "eslint": "^7.5.0"
+  }
+}
