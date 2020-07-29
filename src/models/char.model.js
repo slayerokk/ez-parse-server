@@ -7,6 +7,7 @@ export class Char extends Sequelize.Model {
 			race: DataTypes.INTEGER,
 			class: DataTypes.INTEGER,
 			name: DataTypes.STRING(50),
+			guild: DataTypes.STRING(50),
 			login: DataTypes.STRING(50),
 			lvl: DataTypes.INTEGER,
 			kills: DataTypes.INTEGER,

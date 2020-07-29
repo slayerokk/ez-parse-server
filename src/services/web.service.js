@@ -21,7 +21,8 @@ export default {
 			path: '/api',
 			aliases: {
 				'POST /parser/cookie': 'parser.cookie',
-				'GET /parser/stats': 'parser.stats'
+				'GET /parser/stats': 'parser.stats',
+				'GET /parser/lua': 'parser.lua'
 			},
 			bodyParsers: {
 				json: true,
