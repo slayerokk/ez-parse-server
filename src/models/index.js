@@ -8,7 +8,8 @@ const sequelize = new Sequelize(DB_CONNECTION, {
 	dialect: 'mariadb',
 	dialectOptions: {
 		timezone: 'Etc/GMT+3'
-	}
+	},
+	logging: false
 })
 
 const models = Object.assign({}, ...fs.readdirSync(__dirname)

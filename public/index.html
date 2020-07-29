@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en" class="h-100">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="Codehandler.ru, Дмитрий Василевский">
+	<meta name="generator" content="Jekyll v4.0.1">
+	<title>База данных персонажей игрового сервера EZWOW.org</title>
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
+	</style>
+</head>
+
+<body class="d-flex flex-column h-100">
+	<main role="main" class="flex-shrink-0">
+		<div class="container">
+			<h1 class="mt-5">БД IsengardArmory</h1>
+			<p class="lead">Сервер парсит и сохраняет в БД данные о персонажах со страниц сайта <b>ezwow</b></p>
+		</div>
+	</main>
+	<hr />
+	<div class="container">
+		<div class="row">
+			<div class="col-6">
+				<p>
+					<a href="http://ezserver.codehandler.ru/api/parser/lua" class="btn btn-primary"><i class="fas fa-download"></i> LUA</a>
+					<a href="http://ezserver.codehandler.ru/dump.sql" class="btn btn-secondary"><i class="fas fa-download"></i> SQL (кеш 1 час)</a>
+				</p>
+			</div>
+			<div class="col-6">
+				<a href="https://github.com/slayerokk/ez-parse-server" class="btn btn-primary" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="container" id="app">
+		<div class="row">
+			<div class="col-6">
+				<h3>Пополнение фонда кукисов</h3>
+				<p>Для парсинга необходимы кусисы от ezwow. Пожалуйста, поделитесь кукисами любого аккаунта и они будут использованы для парсинга.</p>
+				<form>
+					<div class="form-group">
+					  <input type="text" class="form-control" v-model="cooks.cookie">
+					  <small class="form-text text-muted">Данные куки, например: isengardPortalArticlePage-0=124336; member_id=1004795; ....</small>
+					</div>
+					<button @click.prevent="share" class="btn btn-primary">Отправить</button>
+				</form>
+				<hr>
+				<div class="alert alert-info" role="alert" v-show="message.length">
+					{{ message }}
+				</div>
+			</div>
+			<div class="col-6">
+				<h3>Статистика (кеш 60сек)</h3>
+				<p>
+					<b>Позиция парсера:</b> {{ data.cursor }} ({{ percent }}%)<br>
+					<b>Всего страниц:</b> {{ data.cursor_ends }}<br>
+					<b>Персонажей в БД:</b> {{ data.parsed }}<br>
+					<b>Кукисов в БД:</b> {{ data.cookies }}
+				</p>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<main role="main" class="flex-shrink-0">
+		<div class="container text-center">
+			<a href="https://www.tinkoff.ru/rm/vasilevskiy.dmitriy5/cPQcX65360" target="_blank">Поддержать разработку, выразить одобрение, сказать спасибо, поставить лайк, увеличить хозяйство, поднять в топ</a>
+		</div>
+	</main>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data() {
+				return {
+					cooks: {
+						cookie: ''
+					},
+					message: '',
+					data: {
+						cursor: 0,
+						cursor_ends: 150000,
+						parsed: 0,
+						cookies: 0
+					}
+				}
+			},
+			computed: {
+				percent() {
+					const { cursor, cursor_ends } = this.data
+					if (cursor == 0) return 0
+					return Math.round(cursor/cursor_ends*100)
+				}
+			},
+			methods: {
+				async share(){
+					try {
+						await axios.post('https://ezserver.codehandler.ru/api/parser/cookie', this.cooks)
+						this.cooks.cookie = ''
+						this.message = 'Спасибо!'
+					} catch (error) {
+						console.log(error)
+					}
+				}
+			},
+			async mounted() {
+				try {
+					const { data } = await axios.get('https://ezserver.codehandler.ru/api/parser/stats')
+					this.data = data
+				} catch (error) {
+					console.log(error)
+				}
+			}
+		})
+	</script>
+</body>
+
+</html>

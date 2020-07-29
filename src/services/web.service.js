@@ -11,15 +11,17 @@ export default {
 
 		port: 44235,
 
+		server: true,
+
 		cors: {
 			origin: '*',
 		},
 
 		routes: [{
-			path: '/',
+			path: '/api',
 			aliases: {
-				'GET /parser/test': 'parser.test',
-				'GET /parser/exec': 'parser.exec'
+				'POST /parser/cookie': 'parser.cookie',
+				'GET /parser/stats': 'parser.stats'
 			},
 			bodyParsers: {
 				json: true,

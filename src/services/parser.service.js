@@ -5,7 +5,7 @@ import database from '../models'
 import cheerio from 'cheerio'
 import queue from 'moleculer-bull'
 
-const DATAPAGE = 'https://ezwow.org/index.php?app=isengard&module=core&tab=armory&section=characters&realm=1&sort%5Bkey%5D=playtime&st='
+const DATAPAGE = 'https://ezwow.org/index.php?app=isengard&module=core&tab=armory&section=characters&realm=1&sort[key]=playtime&sort[order]=desc&st='
 
 export default {
 
@@ -25,12 +25,33 @@ export default {
 
 	actions: {
 
-		exec: {
+		cookie: {
 			params: {
 				cookie: 'string'
 			},
+			async handler(ctx) {
+				const cookie = database.Cookie.build({
+					cookie: ctx.params.cookie
+				})
+				await cookie.save()
+			}
+		},
+
+		stats: {
+			cache: {
+				ttl: 60
+			},
 			async handler() {
-                
+				const [cookies, parsed] = await Promise.all([
+					database.Cookie.count(),
+					database.Char.count()
+				])
+				return {
+					cursor: (await this.broker.cacher.get('start.point')) || 0,
+					cursor_ends: 150000,
+					parsed: parsed,
+					cookies: cookies
+				}
 			}
 		}
 
@@ -46,17 +67,24 @@ export default {
 					headers: {
 						'Cookie': cookie.cookie,
 					},
-					maxRedirects: 50
+					maxRedirects: 100
 				})
-				this.logger.info('Try to load data, start = ', this.settings.start)
-				try {
-					data = (await ax.get(DATAPAGE + this.settings.start)).data
-				} catch (error) {
-					this.logger.info('Bad cookie, remove')
-					await cookie.destroy()
+				const start =  (await this.broker.cacher.get('start.point')) || 0
+				if (start > 150000) {
+					await this.broker.cacher.set('start.point', 0 )
 					return
 				}
-				this.settings.start = (this.settings.start > 150000)? 0: this.settings.start + 20
+				this.logger.info('Try to load data, start = ', start)
+				try {
+					data = (await ax.get(DATAPAGE + start)).data
+				} catch (error) {
+					if (error.response && error.response.status === 403) {
+						this.logger.info('Bad cookie, remove')
+						await cookie.destroy()
+						return
+					}
+				}
+				await this.broker.cacher.set('start.point', start + 20 )
 				const $ = cheerio.load(data)
 				const persons = []
 				$('.ipb_table tr.character').each(function() {
@@ -124,6 +152,6 @@ export default {
 	},
 
 	started() {
-		cron.schedule('*/30 * * * * *', this.parse)
+		cron.schedule('*/5 * * * * *', this.parse)
 	}
 }
