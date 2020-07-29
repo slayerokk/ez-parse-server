@@ -1,25 +1,15 @@
 import axios from 'axios'
-import _ from 'lodash'
 import cron from 'node-cron'
 import database from '../models'
 import cheerio from 'cheerio'
-import queue from 'moleculer-bull'
-import mariadb from 'mariadb'
 import fs from 'fs'
+import mysql from 'mysql2/promise'
 
 const DATAPAGE = 'https://ezwow.org/index.php?app=isengard&module=core&tab=armory&section=characters&realm=1&sort[key]=playtime&sort[order]=desc&st='
 
 export default {
 
 	name: 'parser',
-
-	mixins: [queue(process.env.CACHER)],
-
-	queues: {
-		async 'db.upsert' (job) {
-			await database.Char.upsert(job.data)
-		}
-	},
 
 	actions: {
 
@@ -54,9 +44,6 @@ export default {
 		},
 
 		lua: {
-			cache: {
-				ttl: 3600
-			},
 			handler(ctx) {
 				ctx.meta.$responseType = 'application/octet-stream'
 				ctx.meta.$responseHeaders = {
@@ -69,11 +56,10 @@ export default {
 	},
 
 	methods: {
-
 		async createLua(){
-			const pool = mariadb.createPool(process.env.DB_CONNECTION)
-			const connection = await pool.getConnection()
-			const rows = await connection.query('select * from Chars')
+			const connection = await mysql.createConnection(process.env.DB_CONNECTION)
+			const [rows] = await connection.execute('select * from Chars')
+			await connection.end()
 			const file = fs.createWriteStream('IsengardArmory.lua')
 			file.write('EZ_DATABASE = {\n')
 			let counter = 0
@@ -85,7 +71,6 @@ export default {
 				file.write(`{a="${row.login}",n="${row.name}",l=${row.lvl},s=${row.gs},r=${row.race},g="${row.guild}",c=0},\n`)
 				counter++
 			})
-			await connection.release()
 			file.write('}\n')
 			file.write(`SLASH_EZARMORY1, SLASH_EZARMORY2 = '/ar', '/armory';
 
@@ -372,7 +357,7 @@ export default {
 			end `)
 			file.end()
 		},
-
+		
 		async parse() {
 			const cookie = await database.Cookie.findOne()
 			if (cookie) {
@@ -454,9 +439,9 @@ export default {
 					persons.push(person)
 				})
 				this.logger.info('Parsed characters: ', persons)
-				await Promise.all(
-					_.map(persons, person => this.createJob('db.upsert', person, { attempts: 2, backoff: 10*1000 }))
-				)
+				await database.Char.bulkCreate(persons, {
+					updateOnDuplicate: ['name'] 
+				})
 				return
 			} else {
 				this.logger.info('No cookies lost')
@@ -465,8 +450,7 @@ export default {
 
 	},
 
-	async started() {
-		await this.createLua()
+	started() {
 		cron.schedule('*/5 * * * * *', this.parse)//5 sec
 		cron.schedule('* */30 * * * *', this.createLua)//30 min
 	}

@@ -11,16 +11,19 @@ services:
       LOGGER: "true"
       LOGLEVEL: info
       TRANSPORTER: nats://ezserver_nats:4222
-      DB_CONNECTION: mariadb://ezserver.codehandler.ru:R1m3U1r0D5f5O6c80F5g1P9f@37.143.9.170:3306/ezserver.codehandler.ru
+      DB_CONNECTION: mysql://ezserver:SDjjasdU*&Sdhbkasd@ezserver_db:3306/ezserver
     depends_on:
       - ezserver_nats
       - ezserver_redis
+      - ezserver_db
     networks:
       - internal
       - default
     ports:
       - 127.0.0.1:44235:44235
     restart: always
+    links:
+      - ezserver_db
 
   ezserver_nats:
     image: nats
@@ -35,6 +38,25 @@ services:
     networks:
       - internal
     restart: always
+  
+  ezserver_db:
+    image: mysql:5.7.31
+    container_name: ezserver_db
+    volumes:
+      - dbdata2:/var/lib/mysql
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci
+    environment:
+      - MYSQL_ROOT_PASSWORD=SDjjasdU*&Sdhbkasd
+      - MYSQL_DATABASE=ezserver
+      - MYSQL_USER=ezserver
+      - MYSQL_PASSWORD=SDjjasdU*&Sdhbkasd
+    restart: always
+    networks:
+      - internal
 
 networks:
   internal:
+
+volumes:
+  dbdata2:
+  

@@ -2,14 +2,15 @@ import Sequelize from 'sequelize'
 import path from 'path'
 import fs from 'fs'
 
-const DB_CONNECTION = process.env.DB_CONNECTION || 'sqlite::memory:'
-
-const sequelize = new Sequelize(DB_CONNECTION, {
-	dialect: 'mariadb',
-	dialectOptions: {
-		timezone: 'Etc/GMT+3'
-	},
-	logging: false
+const sequelize = new Sequelize(process.env.DB_CONNECTION, {
+	dialect: 'mysql',
+	logging: false,
+	pool: {
+		max: 5000,
+		min: 0,
+		acquire: 30000,
+		idle: 10000
+	}
 })
 
 const models = Object.assign({}, ...fs.readdirSync(__dirname)
