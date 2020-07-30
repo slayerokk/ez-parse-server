@@ -237,25 +237,6 @@ export default {
 				end
 			end
 			
-			--if foundedacc == nil then
-				--for i, v in ipairs(EZ_DATABASE) do
-					--if (strlower(v.g) == strlower(msg)) then
-						--foundedgi = v.g;
-						--break;
-					--end
-				--end
-			--end
-			
-			--if foundedacc == nil and foundedgi == nil then
-				--for i, v in ipairs(EZ_DATABASE2) do
-					--if (strlower(v.g) == strlower(msg)) then
-						--foundedgi = v.g;
-						--break;
-					--end
-				--end
-			--end
-			
-			--if foundedacc == nil and foundedgi == nil then
 			if foundedacc == nil then
 				print(EZWrapColor("Ничего не найдено =(.", 10));
 			end
