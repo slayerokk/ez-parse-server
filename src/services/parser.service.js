@@ -452,7 +452,7 @@ export default {
 	},
 
 	started() {
-		cron.schedule('*/5 * * * * *', this.parse)//5 sec
-		cron.schedule('* */30 * * * *', this.createLua)//30 min
+		cron.schedule('*/45 * * * * *', this.parse)//45 sec
+		cron.schedule('* * */2 * * *', this.createLua)//2 h
 	}
 }
