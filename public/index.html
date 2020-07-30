@@ -59,6 +59,7 @@
 				<h3>Статистика (кеш 60сек)</h3>
 				<p>
 					<b>Позиция парсера:</b> {{ data.cursor }} ({{ percent }}%)<br>
+					<b>Задержка парсера, с:</b> {{ data.delay }}<br>
 					<b>Всего страниц:</b> {{ data.cursor_ends }}<br>
 					<b>Персонажей в БД:</b> {{ data.parsed }}<br>
 					<b>Кукисов в БД:</b> {{ data.cookies }}
@@ -89,7 +90,8 @@
 						cursor: 0,
 						cursor_ends: 150000,
 						parsed: 0,
-						cookies: 0
+						cookies: 0,
+						delay: 0
 					}
 				}
 			},

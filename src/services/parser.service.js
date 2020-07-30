@@ -39,7 +39,8 @@ export default {
 					cursor: cursor || 0,
 					cursor_ends: 150000,
 					parsed: parsed,
-					cookies: cookies
+					cookies: cookies,
+					delay: 45
 				}
 			}
 		},
