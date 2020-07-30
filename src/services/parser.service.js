@@ -218,8 +218,8 @@ export default {
 			print(" ");
 			print(" ");
 			print(" ");
-			print(EZWrapColor("EZWoW.org Оружейная 1.6, (с) Border <Fiasko>", 10));
-			print(EZWrapColor("База от 2 февраля 2018, содержит "..EZWrapColor(EZ_COUNT, 3).." персонажей.", 10));
+			print(EZWrapColor("EZWoW.org Оружейная 1.6, (с) Border", 10));
+			print(EZWrapColor("База от ` + (new Date).toLocaleString() +`, содержит "..EZWrapColor(EZ_COUNT, 3).." персонажей.", 10));
 			
 			for i, v in ipairs(EZ_DATABASE) do
 				if (strlower(v.n) == strlower(msg)) then
