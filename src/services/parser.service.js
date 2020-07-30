@@ -1,9 +1,9 @@
 import axios from 'axios'
-import cron from 'node-cron'
 import database from '../models'
 import cheerio from 'cheerio'
 import fs from 'fs'
 import mysql from 'mysql2/promise'
+import queue from 'moleculer-bull'
 
 const DATAPAGE = 'https://ezwow.org/index.php?app=isengard&module=core&tab=armory&section=characters&realm=1&sort[key]=playtime&sort[order]=desc&st='
 
@@ -11,54 +11,12 @@ export default {
 
 	name: 'parser',
 
-	actions: {
+	mixins: [queue(process.env.CACHER)],
 
-		cookie: {
-			params: {
-				cookie: 'string'
-			},
-			async handler(ctx) {
-				const cookie = database.Cookie.build({
-					cookie: ctx.params.cookie
-				})
-				await cookie.save()
-			}
-		},
-
-		stats: {
-			cache: {
-				ttl: 60
-			},
-			async handler() {
-				const [cookies, parsed, cursor] = await Promise.all([
-					database.Cookie.count(),
-					database.Char.count(),
-					this.broker.cacher.get('start.point')
-				])
-				return {
-					cursor: cursor || 0,
-					cursor_ends: 150000,
-					parsed: parsed,
-					cookies: cookies,
-					delay: 45
-				}
-			}
-		},
-
-		lua: {
-			handler(ctx) {
-				ctx.meta.$responseType = 'application/octet-stream'
-				ctx.meta.$responseHeaders = {
-					'Content-Disposition': 'attachment; filename="IsengardArmory.lua"'
-				}
-				return fs.createReadStream('IsengardArmory.lua')
-			}
-		}
-
-	},
-
-	methods: {
-		async createLua(){
+	queues: {
+		
+		async 'generate.lua'() {
+			this.logger.info('Generating IsengradArmory.lua....')
 			const connection = await mysql.createConnection(process.env.DB_CONNECTION)
 			const [rows] = await connection.execute('select * from Chars')
 			await connection.end()
@@ -340,8 +298,8 @@ export default {
 			end `)
 			file.end()
 		},
-		
-		async parse() {
+
+		async 'parse.page'() {
 			const cookie = await database.Cookie.findOne()
 			if (cookie) {
 				let data
@@ -433,8 +391,57 @@ export default {
 
 	},
 
-	started() {
-		cron.schedule('*/45 * * * * *', this.parse)//45 sec
-		cron.schedule('* * */2 * * *', this.createLua)//2 h
+	actions: {
+
+		cookie: {
+			params: {
+				cookie: 'string'
+			},
+			async handler(ctx) {
+				const cookie = database.Cookie.build({
+					cookie: ctx.params.cookie
+				})
+				await cookie.save()
+			}
+		},
+
+		stats: {
+			cache: {
+				ttl: 180
+			},
+			async handler() {
+				const [cookies, parsed, cursor] = await Promise.all([
+					database.Cookie.count(),
+					database.Char.count(),
+					this.broker.cacher.get('start.point')
+				])
+				return {
+					cursor: cursor || 0,
+					cursor_ends: 150000,
+					parsed: parsed,
+					cookies: cookies,
+					delay: 60
+				}
+			}
+		},
+
+		lua: {
+			handler(ctx) {
+				ctx.meta.$responseType = 'application/octet-stream'
+				ctx.meta.$responseHeaders = {
+					'Content-Disposition': 'attachment; filename="IsengardArmory.lua"'
+				}
+				return fs.createReadStream('IsengardArmory.lua')
+			}
+		}
+
+	},
+
+	async started() {
+		await Promise.all([
+			this.createJob('generate.lua', {}, { delay: 30000 }),
+			this.createJob('generate.lua', {}, { repeat: { cron: '* */12 * * *'} }),
+			this.createJob('parse.page', {}, { repeat: { cron: '* * * * *'} })
+		])
 	}
 }

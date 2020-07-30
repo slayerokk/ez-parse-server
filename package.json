@@ -34,10 +34,10 @@
     "dotenv": "^8.2.0",
     "ioredis": "^4.17.3",
     "moleculer": "^0.14.8",
+    "moleculer-bull": "^0.2.8",
     "moleculer-web": "^0.9.1",
     "mysql2": "^2.1.0",
     "nats": "^1.4.9",
-    "node-cron": "^2.0.3",
     "redlock": "^4.1.0",
     "sequelize": "^6.3.3"
   },

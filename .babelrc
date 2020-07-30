@@ -1,14 +1,14 @@
 {
-	"presets": [
-		[
-			"@babel/preset-env",
-			{
-				"useBuiltIns": "usage",
-				"corejs": "3.6.5",
-                "targets": {
-                    "esmodules": true
-                }
-			}
-		]
-	]
+	"presets": [[
+		"@babel/preset-env", {
+            "targets": {
+				"esmodules": true,
+				"node": "10"
+            }
+		}
+	]],
+	"comments": false,
+	"retainLines": true,
+	"compact": true,
+	"minified": true
 }

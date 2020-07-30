@@ -1,9 +1,9 @@
-FROM node:8-alpine AS BUILD_IMAGE
+FROM mhart/alpine-node:10.22 AS BUILD_IMAGE
 RUN apk --no-cache add curl
 RUN curl -sfL https://install.goreleaser.com/github.com/tj/node-prune.sh | /bin/sh -s -- -b /usr/local/bin
 WORKDIR /usr/app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm i --production
 RUN /usr/local/bin/node-prune
 
 FROM mhart/alpine-node:slim-10.22
