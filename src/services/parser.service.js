@@ -30,12 +30,13 @@ export default {
 				ttl: 60
 			},
 			async handler() {
-				const [cookies, parsed] = await Promise.all([
+				const [cookies, parsed, cursor] = await Promise.all([
 					database.Cookie.count(),
-					database.Char.count()
+					database.Char.count(),
+					this.broker.cacher.get('start.point')
 				])
 				return {
-					cursor: (await this.broker.cacher.get('start.point')) || 0,
+					cursor: cursor || 0,
 					cursor_ends: 150000,
 					parsed: parsed,
 					cookies: cookies
