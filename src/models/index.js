@@ -3,8 +3,7 @@ import path from 'path'
 import fs from 'fs'
 
 const sequelize = new Sequelize(process.env.DB_CONNECTION, {
-	dialect: 'mysql',
-	logging: false,
+	dialect: 'mariadb',
 	pool: {
 		max: 5000,
 		min: 0,

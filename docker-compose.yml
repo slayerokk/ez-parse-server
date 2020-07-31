@@ -1,4 +1,4 @@
-version: "3.2"
+version: "2"
 
 services:
 
@@ -11,7 +11,7 @@ services:
       LOGGER: "true"
       LOGLEVEL: info
       TRANSPORTER: nats://ezserver_nats:4222
-      DB_CONNECTION: mysql://ezserver:SDjjasdU*&Sdhbkasd@ezserver_db:3306/ezserver
+      DB_CONNECTION: mariadb://ezserver:SDjjasdU*&Sdhbkasd@ezserver_db:3306/ezserver
     depends_on:
       - ezserver_nats
       - ezserver_redis
@@ -40,7 +40,7 @@ services:
     restart: always
   
   ezserver_db:
-    image: mysql:5.7.31
+    image: mariadb
     container_name: ezserver_db
     volumes:
       - dbdata2:/var/lib/mysql
@@ -59,4 +59,3 @@ networks:
 
 volumes:
   dbdata2:
-  

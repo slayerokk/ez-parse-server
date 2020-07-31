@@ -60,19 +60,72 @@
 				<p>
 					<b>Позиция парсера:</b> {{ data.cursor }} ({{ percent }}%)<br>
 					<b>Задержка парсера, с:</b> {{ data.delay }}<br>
-					<b>Всего страниц:</b> {{ data.cursor_ends }}<br>
+					<b>Макс. смещение:</b> {{ data.cursor_ends }}<br>
 					<b>Персонажей в БД:</b> {{ data.parsed }}<br>
 					<b>Кукисов в БД:</b> {{ data.cookies }}
 				</p>
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-12">
+				<h3>Персонажи по расам (кеш 12ч)</h3>
+				<table class="table table-bordered">
+					<thead>
+					  <tr>
+						<th scope="col">Человек</th>
+						<th scope="col">Дворф</th>
+						<th scope="col">Найтэльф</th>
+						<th scope="col">Гном</th>
+						<th scope="col">Дреней</th>
+						<th scope="col">Орк</th>
+						<th scope="col">Нежить</th>
+						<th scope="col">Таурен</th>
+						<th scope="col">Тролль</th>
+						<th scope="col">Бладэльф</th>
+					  </tr>
+					</thead>
+					<tbody>
+					  <tr>
+						<td v-for="(race, index) in data.races">{{ race.count }}</td>
+					  </tr>
+					</tbody>
+				  </table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12">
+				<h3>Персонажи по классам (кеш 12ч)</h3>
+				<table class="table table-bordered">
+					<thead>
+					  <tr>
+						<th scope="col">Охотник</th>
+						<th scope="col">Чернокнижник</th>
+						<th scope="col">Жрец</th>
+						<th scope="col">Паладин</th>
+						<th scope="col">Маг</th>
+						<th scope="col">Разбойник</th>
+						<th scope="col">Друид</th>
+						<th scope="col">Шаман</th>
+						<th scope="col">Воин</th>
+						<th scope="col">ДК</th>
+					  </tr>
+					</thead>
+					<tbody>
+					  <tr>
+						<td v-for="(cclass, index) in data.classes">{{ cclass.count }}</td>
+					  </tr>
+					</tbody>
+				  </table>
+			</div>
+		</div>
 	</div>
 	<hr />
-	<main role="main" class="flex-shrink-0">
-		<div class="container text-center">
-			<a href="https://www.tinkoff.ru/rm/vasilevskiy.dmitriy5/cPQcX65360" target="_blank">Поддержать разработку, выразить одобрение, сказать спасибо, поставить лайк, увеличить хозяйство, поднять в топ</a>
-		</div>
-	</main>
+	<div class="container text-center">
+		<a href="https://www.tinkoff.ru/rm/vasilevskiy.dmitriy5/cPQcX65360" target="_blank">Поддержать разработку, выразить одобрение, сказать спасибо, поставить лайк, увеличить хозяйство, поднять в топ</a>
+		<br />
+		<br />
+	</div>
+
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
@@ -91,7 +144,9 @@
 						cursor_ends: 150000,
 						parsed: 0,
 						cookies: 0,
-						delay: 0
+						delay: 0,
+						races: [],
+						classes: []
 					}
 				}
 			},

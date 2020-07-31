@@ -2,10 +2,19 @@ import axios from 'axios'
 import database from '../models'
 import cheerio from 'cheerio'
 import fs from 'fs'
-import mysql from 'mysql2/promise'
+import mariadb from 'mariadb'
 import queue from 'moleculer-bull'
 
 const DATAPAGE = 'https://ezwow.org/index.php?app=isengard&module=core&tab=armory&section=characters&realm=1&sort[key]=playtime&sort[order]=desc&st='
+
+const PARSER_DELAY = 5 // задержка между парсингами, сек, не влияет, только информативно
+const PARSER_ENDS = 140000 // конечная позиция смещения
+const PARSER_CRON = '*/5 * * * * *' // крон очереди парсинга
+const LUA_CRON = '* */12 * * *' // крон очереди генерации LUA
+const EXTEND_STAT_TTL = 180 // кеш подсчета количества рас и классов
+const STAT_TTL = 180 // кеш подсчета статистики
+
+
 
 export default {
 
@@ -17,9 +26,10 @@ export default {
 		
 		async 'generate.lua'() {
 			this.logger.info('Generating IsengradArmory.lua....')
-			const connection = await mysql.createConnection(process.env.DB_CONNECTION)
-			const [rows] = await connection.execute('select * from Chars')
-			await connection.end()
+			const pool = mariadb.createPool(process.env.DB_CONNECTION)
+			const connection = await pool.getConnection()
+			const rows = await connection.query('select * from Chars')
+			await connection.release()
 			const file = fs.createWriteStream('IsengardArmory.lua')
 			file.write('EZ_DATABASE = {\n')
 			let counter = 0
@@ -310,11 +320,11 @@ export default {
 					maxRedirects: 100
 				})
 				const start =  (await this.broker.cacher.get('start.point')) || 0
-				if (start > 150000) {
-					await this.broker.cacher.set('start.point', 0 )
+				if (start > PARSER_ENDS) {
+					await this.broker.cacher.set('start.point', 0)
 					return
 				}
-				this.logger.info('Try to load data, start = ', start)
+				this.logger.info('Try to load data from ', start)
 				try {
 					data = (await ax.get(DATAPAGE + start)).data
 				} catch (error) {
@@ -334,15 +344,25 @@ export default {
 					const raceImgFile = raceImgSrc[raceImgSrc.length - 1]
 					switch (raceImgFile) {
 					case '1-0.png': person.race = 0; break
+					case '1-1.png': person.race = 0; break
 					case '3-0.png': person.race = 1; break
+					case '3-1.png': person.race = 1; break
+					case '4-0.png': person.race = 2; break
 					case '4-1.png': person.race = 2; break
 					case '7-0.png': person.race = 3; break
+					case '7-1.png': person.race = 3; break
 					case '11-1.png': person.race = 4; break
+					case '11-0.png': person.race = 4; break
 					case '2-0.png': person.race = 5; break
+					case '2-1.png': person.race = 5; break
 					case '5-0.png': person.race = 6; break
+					case '5-1.png': person.race = 6; break
+					case '6-0.png': person.race = 7; break
 					case '6-1.png': person.race = 7; break
 					case '8-0.png': person.race = 8; break
+					case '8-1.png': person.race = 8; break
 					case '10-0.png': person.race = 9; break
+					case '10-1.png': person.race = 9; break
 					default: person.race = 0; break
 					}
 					//class
@@ -381,7 +401,7 @@ export default {
 				})
 				this.logger.info('Parsed characters: ', persons)
 				await database.Char.bulkCreate(persons, {
-					updateOnDuplicate: ['name'] 
+					updateOnDuplicate: ['race', 'class', 'guild', 'login', 'lvl', 'kills', 'gs', 'ap']
 				})
 				return
 			} else {
@@ -405,22 +425,43 @@ export default {
 			}
 		},
 
-		stats: {
+		extended: {
 			cache: {
-				ttl: 180
+				ttl: EXTEND_STAT_TTL
 			},
 			async handler() {
-				const [cookies, parsed, cursor] = await Promise.all([
+				const pool = mariadb.createPool(process.env.DB_CONNECTION)
+				const connection = await pool.getConnection()
+				const [races, classes] = await Promise.all([
+					connection.query('select race, count(race) as count from Chars group by race'),
+					connection.query('select class, count(class) as count from Chars group by class')
+				])
+				await connection.release()
+				return {
+					races: races,
+					classes: classes
+				}
+			}
+		},
+
+		stats: {
+			cache: {
+				ttl: STAT_TTL
+			},
+			async handler() {
+				const [cookies, parsed, cursor, extended] = await Promise.all([
 					database.Cookie.count(),
 					database.Char.count(),
-					this.broker.cacher.get('start.point')
+					this.broker.cacher.get('start.point'),
+					this.broker.call('parser.extended')
 				])
 				return {
 					cursor: cursor || 0,
-					cursor_ends: 150000,
+					cursor_ends: PARSER_ENDS,
 					parsed: parsed,
 					cookies: cookies,
-					delay: 60
+					delay: PARSER_DELAY,
+					...extended
 				}
 			}
 		},
@@ -440,8 +481,8 @@ export default {
 	async started() {
 		await Promise.all([
 			this.createJob('generate.lua', {}, { delay: 30000 }),
-			this.createJob('generate.lua', {}, { repeat: { cron: '* */12 * * *'} }),
-			this.createJob('parse.page', {}, { repeat: { cron: '* * * * *'} })
+			this.createJob('generate.lua', {}, { repeat: { cron: LUA_CRON } }),
+			this.createJob('parse.page', {}, { repeat: { cron: PARSER_CRON } })
 		])
 	}
 }
