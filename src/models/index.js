@@ -9,6 +9,9 @@ const sequelize = new Sequelize(process.env.DB_CONNECTION, {
 		min: 0,
 		acquire: 30000,
 		idle: 10000
+	},
+	dialectOptions: {
+		timezone: 'Etc/GMT+3'
 	}
 })
 

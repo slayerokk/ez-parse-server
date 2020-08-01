@@ -7,11 +7,11 @@ import queue from 'moleculer-bull'
 
 const DATAPAGE = 'https://ezwow.org/index.php?app=isengard&module=core&tab=armory&section=characters&realm=1&sort[key]=playtime&sort[order]=desc&st='
 
-const PARSER_DELAY = 5 // задержка между парсингами, сек, не влияет, только информативно
+const PARSER_DELAY = 60 // задержка между парсингами, сек, не влияет, только информативно
 const PARSER_ENDS = 140000 // конечная позиция смещения
-const PARSER_CRON = '*/5 * * * * *' // крон очереди парсинга
+const PARSER_CRON = '* * * * *' // крон очереди парсинга
 const LUA_CRON = '* */12 * * *' // крон очереди генерации LUA
-const EXTEND_STAT_TTL = 180 // кеш подсчета количества рас и классов
+const EXTEND_STAT_TTL = 43200 // кеш подсчета количества рас и классов
 const STAT_TTL = 180 // кеш подсчета статистики
 
 
