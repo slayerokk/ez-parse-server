@@ -5,11 +5,12 @@ import fs from 'fs'
 const sequelize = new Sequelize(process.env.DB_CONNECTION, {
 	dialect: 'mariadb',
 	pool: {
-		max: 5000,
+		max: 100,
 		min: 0,
 		acquire: 30000,
 		idle: 10000
 	},
+	logging: false,
 	dialectOptions: {
 		timezone: 'Etc/GMT+3'
 	}

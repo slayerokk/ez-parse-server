@@ -39,13 +39,13 @@
     "moleculer-web": "^0.9.1",
     "nats": "^1.4.9",
     "redlock": "^4.1.0",
-    "sequelize": "^6.3.3"
+    "sequelize": "^6.3.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.10.5",
+    "@babel/core": "^7.11.0",
     "@babel/node": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
-    "eslint": "^7.5.0"
+    "@babel/preset-env": "^7.11.0",
+    "eslint": "^7.6.0"
   }
 }

@@ -2,7 +2,6 @@ import axios from 'axios'
 import database from '../models'
 import cheerio from 'cheerio'
 import fs from 'fs'
-import mariadb from 'mariadb'
 import queue from 'moleculer-bull'
 
 const DATAPAGE = 'https://ezwow.org/index.php?app=isengard&module=core&tab=armory&section=characters&realm=1&sort[key]=playtime&sort[order]=desc&st='
@@ -26,10 +25,9 @@ export default {
 		
 		async 'generate.lua'() {
 			this.logger.info('Generating IsengradArmory.lua....')
-			const pool = mariadb.createPool(process.env.DB_CONNECTION)
-			const connection = await pool.getConnection()
-			const rows = await connection.query('select * from Chars')
-			await connection.release()
+			const [rows] = await database.Char.findAll({
+				raw: true
+			})
 			const file = fs.createWriteStream('IsengardArmory.lua')
 			file.write('EZ_DATABASE = {\n')
 			let counter = 0
@@ -399,7 +397,7 @@ export default {
 					person.gs = $(this).find('.gearscore > .value').text().trim().replace(/\s/g, '')
 					persons.push(person)
 				})
-				this.logger.info('Parsed characters: ', persons)
+				this.logger.info('Parsed characters: ', persons.length)
 				await database.Char.bulkCreate(persons, {
 					updateOnDuplicate: ['race', 'class', 'guild', 'login', 'lvl', 'kills', 'gs', 'ap']
 				})
@@ -430,13 +428,10 @@ export default {
 				ttl: EXTEND_STAT_TTL
 			},
 			async handler() {
-				const pool = mariadb.createPool(process.env.DB_CONNECTION)
-				const connection = await pool.getConnection()
-				const [races, classes] = await Promise.all([
-					connection.query('select race, count(race) as count from Chars group by race'),
-					connection.query('select class, count(class) as count from Chars group by class')
+				const [[races], [classes]] = await Promise.all([
+					database.sequelize.query('select race, count(race) as count from Chars group by race', {raw: true}),
+					database.sequelize.query('select class, count(class) as count from Chars group by class', {raw: true})
 				])
-				await connection.release()
 				return {
 					races: races,
 					classes: classes
