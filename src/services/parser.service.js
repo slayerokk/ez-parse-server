@@ -25,9 +25,8 @@ export default {
 		
 		async 'generate.lua'() {
 			this.logger.info('Generating IsengradArmory.lua....')
-			const [rows] = await database.Char.findAll({
-				raw: true
-			})
+			const [rows] = await database.sequelize.query('select * from Chars', {raw: true})
+			this.logger.info('Found chars for LUA', rows.length)
 			const file = fs.createWriteStream('IsengardArmory.lua')
 			file.write('EZ_DATABASE = {\n')
 			let counter = 0
@@ -305,6 +304,7 @@ export default {
 				end 
 			end `)
 			file.end()
+			this.logger.info('Generating LUA complete')
 		},
 
 		async 'parse.page'() {
@@ -475,7 +475,7 @@ export default {
 
 	async started() {
 		await Promise.all([
-			this.createJob('generate.lua', {}, { delay: 30000 }),
+			this.createJob('generate.lua', {}, { delay: 10000 }),
 			this.createJob('generate.lua', {}, { repeat: { cron: LUA_CRON } }),
 			this.createJob('parse.page', {}, { repeat: { cron: PARSER_CRON } })
 		])
