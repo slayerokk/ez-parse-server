@@ -13,9 +13,9 @@
     "docker:up": "docker-compose up -d && npm run docker:prune",
     "docker:prune": "docker system prune -f",
     "docker:deploy": "npm run docker:build && npm run docker:push && npm run docker:up",
-    "docker:remote:pull": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru:22 docker-compose pull",
-    "docker:remote:up": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru:22 docker-compose up -d && npm run docker:remote:prune",
-    "docker:remote:prune": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru:22 docker system prune -f",
+    "docker:remote:pull": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru docker-compose pull",
+    "docker:remote:up": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru docker-compose up -d && npm run docker:remote:prune",
+    "docker:remote:prune": "DOCKER_HOST=ssh://rassvet@rassvet-nf.ru docker system prune -f",
     "docker:remote:deploy": "npm run docker:build && npm run docker:push && npm run docker:remote:pull && npm run docker:remote:up"
   },
   "repository": {
