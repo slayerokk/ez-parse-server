@@ -34,7 +34,7 @@
     "dotenv": "^8.2.0",
     "ioredis": "^4.17.3",
     "mariadb": "^2.4.2",
-    "moleculer": "^0.14.8",
+    "moleculer": "^0.14.9",
     "moleculer-bull": "^0.2.8",
     "moleculer-web": "^0.9.1",
     "nats": "^1.4.9",
@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.11.0",
+    "@babel/core": "^7.11.1",
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.11.0",
     "eslint": "^7.6.0"
