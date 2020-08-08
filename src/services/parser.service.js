@@ -35,7 +35,7 @@ export default {
 				if (counter == border) {
 					file.write('} \nEZ_DATABASE2 = {\n')
 				}
-				file.write(`{a="${row.login}",n="${row.name}",l=${row.lvl},s=${row.gs},r=${row.race},g="${row.guild}",c="${row.class}"},\n`)
+				file.write(`{a="${row.login}",n="${row.name}",l=${row.lvl},s=${row.gs},r=${row.race},g="${row.guild}",c=${row.class}},\n`)
 				counter++
 			})
 			file.write('}\n')
