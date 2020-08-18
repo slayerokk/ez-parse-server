@@ -47,16 +47,16 @@ export default {
 			EZ_RECRUITING = 0;
 		
 			EZ_COLORS = {
-			  [0] = "ffabd473", --Hunter (Охотник)-
-			  [1] = "ff8788ee", --Warlock (Колдун)-
-			  [2] = "ffffffff", --Priest (Жрец)-
-			  [3] = "fff58cba", --Paladin (Паладин)-
-			  [4] = "ff3fc7eb", --Mage (Маг)-
-			  [5] = "fffff569", --Rogue (Вор)-
-			  [6] = "ffff7d0a", --Druid (Друид)-
-			  [7] = "ff0070de", --Shaman (Шаман)-
-			  [8] = "ffc79c6e", --Warrior (Воин)-
-			  [9] = "ffc41f3b", --Death knight (Рыцарь смерти)-
+				[0] = "ffabd473", --Hunter (Охотник)-
+				[1] = "ff8788ee", --Warlock (Чернокнижник)-
+				[2] = "ffffffff", --Priest (Жрец)-
+				[3] = "fff58cba", --Paladin (Паладин)-
+				[4] = "ff3fc7eb", --Mage (Маг)-
+				[5] = "fffff569", --Rogue (Разбойник)-
+				[6] = "ffff7d0a", --Druid (Друид)-
+				[7] = "ff0070de", --Shaman (Шаман)-
+				[8] = "ffc79c6e", --Warrior (Воин)-
+				[9] = "ffc41f3b", --Death knight (Рыцарь смерти)-
 			  
 			  [10] = "4ec0fffe", --captions
 			  [11] = "ffc41f3b", --horde
@@ -65,16 +65,16 @@ export default {
 			};
 			
 			EZ_RACES = {
-			  [0] = "Человек",
-			  [1] = "Дворф",
-			  [2] = "НайтЭльф",
-			  [3] = "Гномик",
-			  [4] = "Дреней", 
-			  [5] = "Орк", 
-			  [6] = "Нежить",
-			  [7] = "Таурен",
-			  [8] = "Тролль",
-			  [9] = "Блудэльф",
+				[0] = "Человек",
+				[1] = "Дворф",
+				[2] = "Ночной эльф",
+				[3] = "Гном",
+				[4] = "Дреней",
+				[5] = "Орк",
+				[6] = "Нежить",
+				[7] = "Таурен",
+				[8] = "Тролль",
+				[9] = "Кровавый эльф",
 			};
 			
 			EZ_SORTED = {};
@@ -204,7 +204,7 @@ export default {
 			end
 			
 			if foundedacc == nil then
-				print(EZWrapColor("Ничего не найдено =(.", 10));
+				print(EZWrapColor("Ничего не найдено.", 10));
 			end
 			
 			if foundedgi ~= nil then

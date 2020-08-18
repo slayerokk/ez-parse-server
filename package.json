@@ -37,7 +37,7 @@
     "moleculer": "^0.14.9",
     "moleculer-bull": "^0.2.8",
     "moleculer-web": "^0.9.1",
-    "nats": "^1.4.9",
+    "nats": "^1.4.12",
     "redlock": "^4.1.0",
     "sequelize": "^6.3.4"
   },
@@ -46,6 +46,6 @@
     "@babel/core": "^7.11.1",
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.11.0",
-    "eslint": "^7.6.0"
+    "eslint": "^7.7.0"
   }
 }
