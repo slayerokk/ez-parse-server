@@ -3,6 +3,7 @@ import database from '../models'
 import cheerio from 'cheerio'
 import fs from 'fs'
 import queue from 'moleculer-bull'
+import chunk from '../lib/chunk'
 
 const DATAPAGE = 'https://ezwow.org/index.php?app=isengard&module=core&tab=armory&section=characters&realm=1&sort[key]=playtime&sort[order]=desc&st='
 
@@ -25,20 +26,39 @@ export default {
 		
 		async 'generate.lua'() {
 			this.logger.info('Generating IsengradArmory.lua....')
-			const [rows] = await database.sequelize.query('select * from Chars', {raw: true})
+			const [rows] = await database.sequelize.query('select * from Chars where lvl=80', {raw: true})
+			const chunked = chunk(rows, 50000)
 			this.logger.info('Found chars for LUA', rows.length)
 			const file = fs.createWriteStream('IsengardArmory.lua')
-			file.write('EZ_DATABASE = {\n')
-			let counter = 0
-			let border = Math.round(rows.length/2)
-			rows.forEach(row => {
-				if (counter == border) {
-					file.write('} \nEZ_DATABASE2 = {\n')
-				}
-				file.write(`{a="${row.login}",n="${row.name}",l=${row.lvl},s=${row.gs},r=${row.race},g="${row.guild}",c=${row.class}},\n`)
-				counter++
+			let chunkedlength = []
+			let chunkedfounds = []
+			let chunkedaccs = []
+			chunked.forEach((chunkrows, chunkindex) => {
+				chunkedlength.push('tablelength(EZ_DATABASE' + chunkindex +')')
+				chunkedfounds.push(`
+				if foundedacc == nil then
+					for i, v in ipairs(EZ_DATABASE` + chunkindex + `) do
+						if (strlower(v.n) == strlower(msg)) then
+							foundedacc = v.a;
+							break;
+						end
+					end
+				end`)
+				chunkedaccs.push(`
+					for i, v in ipairs(EZ_DATABASE` + chunkindex + `) do
+						if v.a == foundedacc then
+							table.insert(EZ_SORTED, v);
+						end
+						counter = counter + 1;
+					end
+				`)
+				file.write('EZ_DATABASE' + chunkindex + ' = {\n')
+				chunkrows.forEach(row =>
+					file.write(`{a="${row.login}",n="${row.name}",l=${row.lvl},s=${row.gs},r=${row.race},g="${row.guild}",c=${row.class}},\n`)
+				)
+				file.write('}\n')
 			})
-			file.write('}\n')
+			
 			file.write(`SLASH_EZARMORY1, SLASH_EZARMORY2 = '/ar', '/armory';
 
 			EZ_BLACKING = 0;
@@ -85,7 +105,7 @@ export default {
 			  return count
 			end
 			
-			local EZ_COUNT = tablelength(EZ_DATABASE)+tablelength(EZ_DATABASE2);
+			local EZ_COUNT = ` + chunkedlength.join('+') + `;
 			
 			local function EZWrapColor(text, index)
 				return ("|c%s%s|r"):format(EZ_COLORS[index], text);
@@ -154,23 +174,6 @@ export default {
 			print(" ");
 			end
 			
-			local function EZOutputArrayGi(characters, foundedgi)
-			local counter = 0;
-			print(" ");
-			print(EZWrapColor("Все персонажи гильдии <"..EZWrapColor(foundedgi, 3)..">", 10));
-			print(" ");
-			for i, v in ipairs(characters) do
-				EZOutputGi(v.n, v.c, v.l, v.r, v.s, v.a);
-				counter = counter +1;
-			end
-			print(" ");
-			print(EZWrapColor("В гильдии "..EZWrapColor(counter, 3).." персонажей ", 10));
-			print(EZWrapBlackHyperlink(foundedgi).." "..EZWrapFriendHyperlink(foundedgi)..EZWrapInviteHyperlink(foundedgi));
-			print(" ");
-			print(" ");
-			print(" ");
-			end
-			
 			local function handler(msg, editbox)
 			
 			EZ_BLACKING = 0;
@@ -184,63 +187,19 @@ export default {
 			print(" ");
 			print(" ");
 			print(" ");
-			print(EZWrapColor("EZWoW.org Оружейная 1.6, (с) Border", 10));
+			print(EZWrapColor("EZWoW.org Оружейная 1.7, (с) Border", 10));
 			print(EZWrapColor("База от ` + (new Date).toLocaleString() +`, содержит "..EZWrapColor(EZ_COUNT, 3).." персонажей.", 10));
 			
-			for i, v in ipairs(EZ_DATABASE) do
-				if (strlower(v.n) == strlower(msg)) then
-					foundedacc = v.a;
-					break;
-				end
-			end
-			
-			if foundedacc == nil then
-				for i, v in ipairs(EZ_DATABASE2) do
-					if (strlower(v.n) == strlower(msg)) then
-						foundedacc = v.a;
-						break;
-					end
-				end
-			end
+			` + chunkedfounds.join('\n') + `
 			
 			if foundedacc == nil then
 				print(EZWrapColor("Ничего не найдено.", 10));
 			end
 			
-			if foundedgi ~= nil then
-				EZ_SORTED = {};
-				local counter = 0;
-				for i, v in ipairs(EZ_DATABASE) do
-					if v.g == foundedgi then
-						table.insert(EZ_SORTED, v);
-					end
-					counter = counter + 1;
-				end
-				for i, v in ipairs(EZ_DATABASE2) do
-					if v.a == foundedgi then
-						table.insert(EZ_SORTED, v);
-					end
-					counter = counter + 1;
-				end
-				sort(EZ_SORTED, function(a, b) return a.s>b.s end)
-				EZOutputArrayGi(EZ_SORTED, foundedgi);
-			end
-			
 			if foundedacc ~= nil then
 				EZ_SORTED = {};
 				local counter = 0;
-				for i, v in ipairs(EZ_DATABASE) do
-					if v.a == foundedacc then
-						table.insert(EZ_SORTED, v);
-					end
-					counter = counter + 1;
-				end
-				for i, v in ipairs(EZ_DATABASE2) do
-					if v.a == foundedacc then
-						table.insert(EZ_SORTED, v);
-					end
-					counter = counter + 1;
-				end
+				` + chunkedaccs.join('\n') + `
 				sort(EZ_SORTED, function(a, b) return a.s>b.s end)
 				EZOutputArray(EZ_SORTED, foundedacc);
 			end

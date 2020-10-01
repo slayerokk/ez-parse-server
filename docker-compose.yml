@@ -10,10 +10,8 @@ services:
       CACHER: redis://ezserver_redis
       LOGGER: "true"
       LOGLEVEL: info
-      TRANSPORTER: nats://ezserver_nats:4222
       DB_CONNECTION: mariadb://ezserver:SDjjasdU*&Sdhbkasd@ezserver_db:3306/ezserver
     depends_on:
-      - ezserver_nats
       - ezserver_redis
       - ezserver_db
     networks:
@@ -24,13 +22,6 @@ services:
     restart: always
     links:
       - ezserver_db
-
-  ezserver_nats:
-    image: nats
-    container_name: ezserver_nats
-    networks:
-      - internal
-    restart: always
 
   ezserver_redis:
     image: redis:alpine
