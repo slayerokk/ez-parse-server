@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="h-100">
+<html lang="ru" class="h-100">
 
 <head>
 	<meta charset="utf-8">
@@ -18,7 +18,7 @@
 	<main role="main" class="flex-shrink-0">
 		<div class="container">
 			<h1 class="mt-5">БД IsengardArmory</h1>
-			<p class="lead">Сервер парсит и сохраняет в БД данные о персонажах со страниц сайта <b>ezwow</b>. В SQL хранится полная база, LUA и Аддон содержат только персонажей 80+.</p>
+			<p class="lead">Сервер парсит и сохраняет в БД данные о персонажах со страниц сайта <b>ezwow</b>.
 		</div>
 	</main>
 	<hr />
@@ -26,10 +26,12 @@
 		<div class="row">
 			<div class="col-6">
 				<p>
-					<a href="http://ezserver.codehandler.ru/api/parser/lua" class="btn btn-success"><i class="fas fa-download"></i> LUA 80+</a>
-					<a href="http://ezserver.codehandler.ru/dump.sql" class="btn btn-warning"><i class="fas fa-download"></i> SQL All</a>
-					<a href="https://ezserver.codehandler.ru/IsengardArmory.zip" class="btn btn-info"><i class="fas fa-download"></i> Аддон 80+</a>
-					<small class="form-text text-muted">Кеш файлов LUA и SQL составляет 12 часов, версия аддона - 1 октября 2020</small>
+					<a href="/api/generator/json" class="btn btn-success"><i class="fas fa-download"></i> JSON</a>
+					<a href="/api/generator/sql" class="btn btn-warning"><i class="fas fa-download"></i> SQL</a>
+					<a href="/api/generator/sqlzip" class="btn btn-warning"><i class="fas fa-download"></i> SQL.ZIP</a>
+					<a href="/api/generator/lua" class="btn btn-info"><i class="fas fa-download"></i> LUA</a>
+					<a href="/api/generator/addon" class="btn btn-info"><i class="fas fa-download"></i> Аддон</a>
+					<small class="form-text text-muted">Кеш файлов LUA и SQL составляет 1 час</small>
 				</p>
 			</div>
 			<div class="col-6">
@@ -43,8 +45,8 @@
 	<div class="container" id="app">
 		<div class="row">
 			<div class="col-6">
-				<h3>Пополнение фонда кукисов</h3>
-				<p>Для парсинга необходимы кусисы от ezwow. Пожалуйста, поделитесь кукисами любого аккаунта и они будут использованы для парсинга.</p>
+				<h3>Добавить куки</h3>
+				<p>Для парсинга необходимы куси от ezwow. Пожалуйста, поделитесь куками любого аккаунта и они будут использованы для парсинга.</p>
 				<form>
 					<div class="form-group">
 					  <input type="text" class="form-control" v-model="cooks.cookie">
@@ -60,17 +62,18 @@
 			<div class="col-6">
 				<h3>Статистика</h3>
 				<p>
-					<b>Позиция парсера:</b> {{ data.cursor }} ({{ percent }}%)<br>
-					<b>Задержка парсера, с:</b> {{ data.delay }}<br>
-					<b>Макс. смещение:</b> {{ data.cursor_ends }}<br>
-					<b>Персонажей в БД:</b> {{ data.parsed }}<br>
-					<b>Кукисов в БД:</b> {{ data.cookies }}
+					<b>Позиция парсера:</b> {{ data.position }} ({{ percent }}%)<br>
+					<b>Задержка парсера, с:</b> 60<br>
+					<b>Макс. смещение:</b> {{ data.ezwow.maxSt }}<br>
+					<b>Персонажей в БД:</b> {{ data.characters }}<br>
+					<b>Кукисов в БД:</b> {{ data.cookies }}<br>
+					<a href="https://www.tinkoff.ru/rm/vasilevskiy.dmitriy5/cPQcX65360" target="_blank">Увеличить хозяйство</a>
 				</p>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-12">
-				<h3>Персонажи по расам <a href="https://docs.google.com/spreadsheets/d/1Z_L17KHUHv9ty_5o6OTGhSxh5sXvXo-eVZGBib2IR0c/edit#gid=0" target="_blank">Чарты в Google Docs, страница 1</a></h3>
+				<h4>Персонажи по расам</h4>
 				<table class="table table-bordered">
 					<thead>
 					  <tr>
@@ -88,7 +91,7 @@
 					</thead>
 					<tbody>
 					  <tr>
-						<td v-for="(race, index) in data.races">{{ race.count }}</td>
+						<td v-for="(count, index) in data.races">{{ count }}</td>
 					  </tr>
 					</tbody>
 				  </table>
@@ -96,7 +99,7 @@
 		</div>
 		<div class="row">
 			<div class="col-12">
-				<h3>Персонажи по классам</h3>
+				<h4>Персонажи по классам</h4>
 				<table class="table table-bordered">
 					<thead>
 					  <tr>
@@ -114,20 +117,13 @@
 					</thead>
 					<tbody>
 					  <tr>
-						<td v-for="(cclass, index) in data.classes">{{ cclass.count }}</td>
+						<td v-for="(count, index) in data.classes">{{ count }}</td>
 					  </tr>
 					</tbody>
 				  </table>
 			</div>
 		</div>
 	</div>
-	<hr />
-	<div class="container text-center">
-		<a href="https://www.tinkoff.ru/rm/vasilevskiy.dmitriy5/cPQcX65360" target="_blank">Поддержать разработку, выразить одобрение, сказать спасибо, поставить лайк, увеличить хозяйство, поднять в топ</a>
-		<br />
-		<br />
-	</div>
-
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
@@ -142,11 +138,12 @@
 					},
 					message: '',
 					data: {
-						cursor: 0,
-						cursor_ends: 150000,
-						parsed: 0,
+						position: 0,
+						ezwow: {
+							maxSt: 111000
+						},
 						cookies: 0,
-						delay: 0,
+						characters: 0,
 						races: [],
 						classes: []
 					}
@@ -154,15 +151,15 @@
 			},
 			computed: {
 				percent() {
-					const { cursor, cursor_ends } = this.data
-					if (cursor == 0) return 0
-					return Math.round(cursor/cursor_ends*100)
+					const { position, ezwow: {maxSt} } = this.data
+					if (maxSt == 0) return 0
+					return Math.round(position/maxSt*100)
 				}
 			},
 			methods: {
 				async share(){
 					try {
-						await axios.post('https://ezserver.codehandler.ru/api/parser/cookie', this.cooks)
+						await axios.post('/api/cookie/create', this.cooks)
 						this.cooks.cookie = ''
 						this.message = 'Спасибо!'
 					} catch (error) {
@@ -172,7 +169,7 @@
 			},
 			async mounted() {
 				try {
-					const { data } = await axios.get('https://ezserver.codehandler.ru/api/parser/stats')
+					const { data } = await axios.get('/api/stat/get')
 					this.data = data
 				} catch (error) {
 					console.log(error)

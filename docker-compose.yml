@@ -6,22 +6,16 @@ services:
     container_name: ezserver_api
     image: docker.rassvet-nf.ru/ezserver
     environment:
-      SERVICEDIR: src/services
-      CACHER: redis://ezserver_redis
-      LOGGER: "true"
-      LOGLEVEL: info
-      DB_CONNECTION: mariadb://ezserver:SDjjasdU*&Sdhbkasd@ezserver_db:3306/ezserver
+      CACHER: redis://ezserver_redis:6379
+      PULSER: 60
     depends_on:
       - ezserver_redis
-      - ezserver_db
     networks:
       - internal
       - default
     ports:
-      - 127.0.0.1:44235:44235
+      - 44235:3000
     restart: always
-    links:
-      - ezserver_db
 
   ezserver_redis:
     image: redis:alpine
@@ -29,24 +23,6 @@ services:
     networks:
       - internal
     restart: always
-  
-  ezserver_db:
-    image: mariadb
-    container_name: ezserver_db
-    volumes:
-      - dbdata2:/var/lib/mysql
-    command: --character-set-server=utf8 --collation-server=utf8_general_ci
-    environment:
-      - MYSQL_ROOT_PASSWORD=SDjjasdU*&Sdhbkasd
-      - MYSQL_DATABASE=ezserver
-      - MYSQL_USER=ezserver
-      - MYSQL_PASSWORD=SDjjasdU*&Sdhbkasd
-    restart: always
-    networks:
-      - internal
 
 networks:
   internal:
-
-volumes:
-  dbdata2:

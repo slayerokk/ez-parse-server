@@ -1,0 +1,9 @@
+## Interface: 30300
+## Title: Isengard Armory
+## Notes: Quickly and easily shows all chars of account
+## Version: 2.0.0 - Production
+## Author: Border
+## Dependencies:
+## OptionalDeps:
+
+IsengardArmory.lua

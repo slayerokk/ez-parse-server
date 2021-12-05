@@ -6,4 +6,5 @@ Dockerfile
 .editorconfig
 .git
 README.md
-.eslintrc.json
+.env
+moleculer.config.js
