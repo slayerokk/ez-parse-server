@@ -1,4 +1,5 @@
 import Database from '../mixins/database.mixin'
+import { Errors } from 'moleculer'
 
 export default {
 
@@ -61,6 +62,8 @@ export default {
 			async handler(ctx) {
 				const {params} = ctx
 				const {login, name} = params
+				if (!login || !name)
+					throw new Errors.MoleculerError('Нет имени или логина', 404, 'LOGIN_AND_NAME_REQUIRED')
 				//найти персонажа по логину и имени
 				const characters = await ctx.call('character.find', {query: {login, name}, limit: 1})
 				if (characters.length) 
