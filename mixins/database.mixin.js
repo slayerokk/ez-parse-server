@@ -1,13 +1,15 @@
 import {Service as Database} from '@moleculer/database'
 
-export default function () {
+export default function (collection) {
 
     return {
 
 		mixins: [
 			Database({
-				adapter: 'NeDB',
-				maxLimit: 10
+				adapter: {
+					type: 'NeDB',
+					options: path.resolve(__dirname, `../database/${collection}.json`)
+				}
 			})
 		]
 

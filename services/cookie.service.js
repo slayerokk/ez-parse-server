@@ -6,7 +6,7 @@ export default {
     name: 'cookie',
 
     mixins: [
-		Database()
+		Database('cookies')
     ],
 
     settings: {

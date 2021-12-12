@@ -6,7 +6,7 @@ export default {
     name: 'character',
 
     mixins: [
-		Database()
+		Database('characters')
     ],
 
     settings: {
