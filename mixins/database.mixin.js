@@ -1,4 +1,5 @@
 import {Service as Database} from '@moleculer/database'
+import path from 'path'
 
 export default function (collection) {
 
