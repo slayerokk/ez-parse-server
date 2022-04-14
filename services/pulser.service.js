@@ -25,7 +25,6 @@ export default {
 				//записать новое смещение в кеш
 				await this.broker.cacher.set('start.point', st)
 			} catch (e) {
-				this.logger.info(`Pulser.pulse action failed, error: ${e.message}`)
 			}
 			//вернуть завершенный промис
 			return Promise.resolve()

@@ -1,4 +1,4 @@
-import Database from '../mixins/database.mixin'
+import {Service as Database} from '@moleculer/database'
 import { Errors } from 'moleculer'
 
 export default {
@@ -6,8 +6,15 @@ export default {
     name: 'character',
 
     mixins: [
-		Database('characters')
-    ],
+		Database({
+			adapter: { 
+				type: 'MongoDB',
+				options: {
+					uri: process.env.DATABASE,
+				}
+			}
+		})
+	],
 
     settings: {
 		fields: {
@@ -23,24 +30,10 @@ export default {
             ap: 'number',
 			updated: {
 				type: 'number',
-				readonly: true,
 				onCreate: () => Date.now(),
 				onUpdate: () => Date.now()
 			}
         }  
-    },
-
-	events: {
-		//это событие будет вызвано, когда происходит парсинг персонажей в сервисе ezwow.parse
-        'character.updated': {
-            async handler(ctx) {
-				//список персонажей, о которых получены новые данные
-				const {params: {rows}} = ctx
-				//обновить (на основе логина и имени персонажа) или создать этих персонажей в БД
-                await Promise.allSettled(rows.map(row => ctx.call('character.updateOrCreate', row)))
-				this.logger.info(`Updated ${rows.length} rows`)
-            }
-        }
     },
 
 	actions: {
@@ -68,7 +61,7 @@ export default {
 				const characters = await ctx.call('character.find', {query: {login, name}, limit: 1})
 				if (characters.length) 
 					//персонаж найден, обновить
-					return ctx.call('character.replace', {...ctx.params, _id: characters[0]._id})
+					return ctx.call('character.update', {...ctx.params, _id: characters[0]._id})
 				else
 					return ctx.call('character.create', ctx.params)
 			}

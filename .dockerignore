@@ -1,11 +1,8 @@
-node_modules
-.gitignore
-docker-compose.yml
-Dockerfile
-.dockerignore
-.editorconfig
 .git
-README.md
+.gitignore
+.dockerignore
+Dockerfile
 .env
-moleculer.config.js
-database
+.editorconfig
+docker-compose.yml
+README.md

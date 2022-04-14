@@ -52,6 +52,7 @@ export default {
 				st: 'number|min:0|convert|default:0'
 			},
 			async handler(ctx) {
+				this.logger.info(`Parse with st = ${ctx.params.st}...`)
 				//загрузить данные с сервера езвов
 				const data = await ctx.call('ezwow.get', ctx.params)
 				//создать парсер на основе данных
@@ -121,11 +122,14 @@ export default {
 				})
 				//исключить из массива persons записи с отсутствующими данными
 				const rows = _.filter(persons, person => ((person.race >= 0) && (person.class >=0) && person.name && person.login && person.lvl))
-				//сгенерировать событие, что пришла новая инфа о персонажах
-				await this.broker.emit('character.updated', {rows: persons})
+				this.logger.info(`Parsed ${rows.length} characters.`)
+				//пришла новая инфа о персонажах
+				await Promise.allSettled(
+					rows.map(row => ctx.call('character.updateOrCreate', row))
+				)
 				//вернуть результат
 				return {
-					rows: persons, //массив
+					rows, //массив
 					count: persons.length, //длина массива
 					st: ctx.params.st //переданное смещение
 				}
@@ -156,7 +160,7 @@ export default {
 				} catch (error) {
 					//если загрузчик упал с ошибкой 403, значит кука протухла
 					if (error.response.status == 403)
-						await ctx.call('cookie.remove', {id: cookie._id})
+						await ctx.call('cookie.remove', {_id: cookie._id})
 				}
 			}
 		}

@@ -7,17 +7,17 @@ services:
     image: docker.rassvet-nf.ru/ezserver
     environment:
       CACHER: redis://ezserver_redis:6379
-      PULSER: 60
+      PULSER: 5
+      DATABASE: mongodb://ezserver_mongo:27017/ezwow
     depends_on:
       - ezserver_redis
+      - ezserver_mongo
     networks:
       - internal
       - default
     ports:
       - 44235:3000
     restart: always
-    volumes:
-      - database:/usr/app/database
 
   ezserver_redis:
     image: redis:alpine
@@ -25,6 +25,15 @@ services:
     networks:
       - internal
     restart: always
+
+  ezserver_mongo:
+    image : mongo
+    container_name: chatops_mongo
+    restart: always
+    volumes:
+      - database:/data/db
+    networks:
+      - internal
 
 networks:
   internal:

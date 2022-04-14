@@ -22,18 +22,19 @@
 	"dependencies": {
 		"@moleculer/database": "github:moleculerjs/database",
 		"adm-zip": "^0.5.9",
-		"axios": "^0.24.0",
+		"axios": "^0.26.1",
 		"cheerio": "^1.0.0-rc.10",
 		"esm": "^3.2.25",
 		"ioredis": "^4.28.2",
 		"lodash": "^4.17.21",
-		"moleculer": "^0.14.18",
+		"moleculer": "^0.14.19",
 		"moleculer-bull": "^0.2.8",
-		"moleculer-web": "^0.10.3",
+		"moleculer-web": "^0.10.4",
+		"mongodb": "^4.1.4",
 		"nedb": "^1.8.0",
 		"redlock": "^4.2.0"
 	},
 	"devDependencies": {
-		"dotenv": "^10.0.0"
+		"dotenv": "^16.0.0"
 	}
 }
